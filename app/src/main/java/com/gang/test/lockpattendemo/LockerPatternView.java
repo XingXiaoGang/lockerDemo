@@ -17,7 +17,7 @@ import java.util.LinkedList;
 /**
  * Created by gang on 16-8-14.
  */
-public class LockerPatternLayout extends View implements ILockerView {
+public class LockerPatternView extends View implements ILockerView {
 
     private static final boolean DEBUG = true;
     private static final String TAG = "test.LockerPatternLayout";
@@ -28,6 +28,7 @@ public class LockerPatternLayout extends View implements ILockerView {
     private int mPatternPercent = 60;
     // 列 ,其实 int[] 类型最好，这样就支持特殊的解锁方式,现在先简单弄
     private int COlUMN = 3;
+    private int mBorder;
 
     private Paint mRountPaint;
     private Paint mLinePaint;
@@ -38,24 +39,26 @@ public class LockerPatternLayout extends View implements ILockerView {
 
 
     private Rect[][] mPatternRects = new Rect[COlUMN][COlUMN];
+    private RadialGradient[][] mMainShader = new RadialGradient[COlUMN][COlUMN];
+    private RadialGradient[][] mTopShader = new RadialGradient[COlUMN][COlUMN];
     private Rect mDisplayRect;
 
     // 当前已经连起来的
     private LinkedList<Position> mLinkedList = new LinkedList<>();
 
 
-    public LockerPatternLayout(Context context) {
+    public LockerPatternView(Context context) {
         super(context);
         initView(context, null);
     }
 
-    public LockerPatternLayout(Context context, AttributeSet attrs) {
+    public LockerPatternView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context, attrs);
     }
 
 
-    public LockerPatternLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public LockerPatternView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context, attrs);
     }
@@ -74,7 +77,7 @@ public class LockerPatternLayout extends View implements ILockerView {
         mShadowColor2 = Color.argb(80, 210, 200, 200);
 
         mDisplayMertics = context.getResources().getDisplayMetrics().density;
-
+        mBorder = (int) (mDisplayMertics * 8);
         mRountPaint = new Paint();
         mRountPaint.setStyle(Paint.Style.FILL);
         mRountPaint.setStrokeWidth(5 * mDisplayMertics);
@@ -106,12 +109,25 @@ public class LockerPatternLayout extends View implements ILockerView {
         int widthOffset = (int) (oneWidth * ((100f - mPatternPercent) / 100));
         int heightOffset = (int) (oneHeight * ((100f - mPatternPercent) / 100));
 
+        int border = (int) (mDisplayMertics * 8);
+        int shadowWidth = (int) (mDisplayMertics * 4);
+
         for (int r = 0; r < COlUMN; r++) {
             for (int c = 0; c < COlUMN; c++) {
                 int l = c * oneWidth + widthOffset / 2;
                 int t = r * oneHeight + heightOffset / 2;
                 final Rect rect = mPatternRects[r][c];
                 rect.set(l, t, l + oneWidth - widthOffset, t + oneHeight - heightOffset);
+
+                mMainShader[r][c] = new RadialGradient(rect.centerX() + border / 3, rect.centerY() + border / 2, rect.width() / 2 - border / 2 * 3 + shadowWidth,
+                        new int[]{mShadowColor1, mShadowColor1, Color.TRANSPARENT}
+                        , null
+                        , Shader.TileMode.CLAMP);
+
+                mTopShader[r][c] = new RadialGradient(rect.centerX() + border, rect.centerY() + border, rect.width() / 2,
+                        new int[]{mShadowColor2, Color.TRANSPARENT}
+                        , null
+                        , Shader.TileMode.CLAMP);
 
                 if (DEBUG) {
                     Log.d(TAG, "rect: [" + r + "][" + c + "]:" + rect);
@@ -134,33 +150,23 @@ public class LockerPatternLayout extends View implements ILockerView {
                 mRountPaint.setShader(null);
                 canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2, mRountPaint);
 
-                int border = (int) (mDisplayMertics * 8);
-                int shadowWidth = (int) (mDisplayMertics * 4);
 
                 //背景2 主圆阴影
                 mRountPaint.setColor(mRoundColor2);
-                mRountPaint.setShader(new RadialGradient(rect.centerX() + border / 3, rect.centerY() + border / 2, rect.width() / 2 - border / 2 * 3 + shadowWidth,
-                        new int[]{mShadowColor1, mShadowColor1, Color.TRANSPARENT}
-                        , null
-                        , Shader.TileMode.CLAMP));
+                mRountPaint.setShader(mMainShader[r][c]);
                 canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2, mRountPaint);
 
-
                 //todo 在这里画线
-
-
+                
                 //背景3 主圆
                 mRountPaint.setColor(mRoundColor2);
                 mRountPaint.setShader(null);
-                canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2 - border, mRountPaint);
+                canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2 - mBorder, mRountPaint);
 
                 //背景4 主圆上阴影
                 mRountPaint.setColor(mRoundColor2);
-                mRountPaint.setShader(new RadialGradient(rect.centerX() + border, rect.centerY() + border, rect.width() / 2,
-                        new int[]{mShadowColor2, Color.TRANSPARENT}
-                        , null
-                        , Shader.TileMode.CLAMP));
-                canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2 - border, mRountPaint);
+                mRountPaint.setShader(mTopShader[r][c]);
+                canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2 - mBorder, mRountPaint);
             }
         }
     }
