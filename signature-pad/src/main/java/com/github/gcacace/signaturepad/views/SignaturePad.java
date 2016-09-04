@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -175,9 +176,9 @@ public class SignaturePad extends View {
         if (!isEnabled())
             return false;
 
-
-        float eventX = event.getX();
-        float eventY = event.getY();
+        int active = MotionEventCompat.getActionIndex(event);
+        float eventX = MotionEventCompat.getX(event, active);
+        float eventY = MotionEventCompat.getY(event, active);
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -194,7 +195,7 @@ public class SignaturePad extends View {
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (isDoubleClick(event)) break;
+                if (isDoubleClick(eventX, eventY)) break;
 
                 resetDirtyRect(eventX, eventY);
                 addPoint(getNewPoint(eventX, eventY));
@@ -376,14 +377,14 @@ public class SignaturePad extends View {
         return Bitmap.createBitmap(mSignatureBitmap, xMin, yMin, xMax - xMin, yMax - yMin);
     }
 
-    private boolean isDoubleClick(MotionEvent motionEvent) {
+    private boolean isDoubleClick(float x, float y) {
         if (mClearOnDoubleClick) {
             if (mFirstClickTime == 0) {
                 mFirstClickTime = System.currentTimeMillis();
                 return false;
             }
-            int dX = (int) (motionEvent.getX() - mLastTouchX);
-            int dY = (int) (motionEvent.getY() - mLastTouchY);
+            int dX = (int) (x - mLastTouchX);
+            int dY = (int) (y - mLastTouchY);
             boolean positionSame = Math.sqrt(dX * dX + dY * dY) <= mTouchSlop;
 
             if (positionSame && System.currentTimeMillis() - mFirstClickTime < DOUBLE_CLICK_DELAY_MS) {
