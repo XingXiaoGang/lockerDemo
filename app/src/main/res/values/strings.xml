@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LockPattenDemo</string>
+    <string name="tips_clear">双击可清除屏幕</string>
 </resources>

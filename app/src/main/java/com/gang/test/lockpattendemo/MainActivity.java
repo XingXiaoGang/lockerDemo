@@ -12,14 +12,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.start).setOnClickListener(this);
+        findViewById(R.id.start_pattern).setOnClickListener(this);
+        findViewById(R.id.start_sign).setOnClickListener(this);
+
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.start: {
+            case R.id.start_pattern: {
                 Intent intent = new Intent(MainActivity.this, PatternLockerActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case R.id.start_sign: {
+                Intent intent = new Intent(MainActivity.this, SignLockerActivity.class);
                 startActivity(intent);
                 break;
             }

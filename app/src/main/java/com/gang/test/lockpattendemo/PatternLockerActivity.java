@@ -10,7 +10,6 @@ public class PatternLockerActivity extends Activity implements ILockerActivity {
 
     private int[] mPassword;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

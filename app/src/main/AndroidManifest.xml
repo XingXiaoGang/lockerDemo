@@ -17,6 +17,7 @@
         </activity>
 
         <activity android:name=".PatternLockerActivity" />
+        <activity android:name=".SignLockerActivity" />
     </application>
 
 </manifest>
