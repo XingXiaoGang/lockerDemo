@@ -22,6 +22,8 @@ public class SignLockerActivity extends Activity implements ILockerActivity, Han
 
         setContentView(R.layout.sign_lock_activity);
 
+
+
         mHandler = new Handler(this);
         mSignaturePad = (SignaturePad) findViewById(R.id.signature_pad);
         mSignaturePad.setOnSignedListener(new SignaturePad.OnSignedListener() {
