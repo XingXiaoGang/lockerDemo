@@ -46,7 +46,6 @@ public class LockerPatternView extends View implements ILockerView {
     // 当前已经连起来的
     private LinkedList<Position> mLinkedList = new LinkedList<>();
 
-
     public LockerPatternView(Context context) {
         super(context);
         initView(context, null);
@@ -157,7 +156,7 @@ public class LockerPatternView extends View implements ILockerView {
                 canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2, mRountPaint);
 
                 //todo 在这里画线
-                
+
                 //背景3 主圆
                 mRountPaint.setColor(mRoundColor2);
                 mRountPaint.setShader(null);

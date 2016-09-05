@@ -15,15 +15,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewTreeObserver;
 
 import com.github.gcacace.signaturepad.R;
 import com.github.gcacace.signaturepad.utils.Bezier;
 import com.github.gcacace.signaturepad.utils.ControlTimedPoints;
 import com.github.gcacace.signaturepad.utils.SvgBuilder;
 import com.github.gcacace.signaturepad.utils.TimedPoint;
-import com.github.gcacace.signaturepad.view.ViewCompat;
-import com.github.gcacace.signaturepad.view.ViewTreeObserverCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +32,6 @@ public class SignaturePad extends View {
 
     //View state
     private List<TimedPoint> mPoints;
-    private boolean mIsEmpty;
     private float mLastTouchX;
     private float mLastTouchY;
     private float mLastVelocity;
@@ -165,10 +161,10 @@ public class SignaturePad extends View {
             mSignatureBitmap = null;
             ensureSignatureBitmap();
         }
-
-        setIsEmpty(true);
-
         invalidate();
+        if (mOnSignedListener != null) {
+            mOnSignedListener.onClear();
+        }
     }
 
     @Override
@@ -200,7 +196,7 @@ public class SignaturePad extends View {
                 resetDirtyRect(eventX, eventY);
                 addPoint(getNewPoint(eventX, eventY));
                 getParent().requestDisallowInterceptTouchEvent(true);
-                setIsEmpty(false);
+                finishSign();
                 break;
 
             default:
@@ -228,10 +224,6 @@ public class SignaturePad extends View {
         mOnSignedListener = listener;
     }
 
-    public boolean isEmpty() {
-        return mIsEmpty;
-    }
-
     public String getSignatureSvg() {
         int width = getTransparentSignatureBitmap().getWidth();
         int height = getTransparentSignatureBitmap().getHeight();
@@ -249,43 +241,27 @@ public class SignaturePad extends View {
 
     public void setSignatureBitmap(final Bitmap signature) {
         // View was laid out...
-        if (ViewCompat.isLaidOut(this)) {
-            clear();
-            ensureSignatureBitmap();
+        clear();
+        ensureSignatureBitmap();
 
-            RectF tempSrc = new RectF();
-            RectF tempDst = new RectF();
+        RectF tempSrc = new RectF();
+        RectF tempDst = new RectF();
 
-            int dWidth = signature.getWidth();
-            int dHeight = signature.getHeight();
-            int vWidth = getWidth();
-            int vHeight = getHeight();
+        int dWidth = signature.getWidth();
+        int dHeight = signature.getHeight();
+        int vWidth = getWidth();
+        int vHeight = getHeight();
 
-            // Generate the required transform.
-            tempSrc.set(0, 0, dWidth, dHeight);
-            tempDst.set(0, 0, vWidth, vHeight);
+        // Generate the required transform.
+        tempSrc.set(0, 0, dWidth, dHeight);
+        tempDst.set(0, 0, vWidth, vHeight);
 
-            Matrix drawMatrix = new Matrix();
-            drawMatrix.setRectToRect(tempSrc, tempDst, Matrix.ScaleToFit.CENTER);
+        Matrix drawMatrix = new Matrix();
+        drawMatrix.setRectToRect(tempSrc, tempDst, Matrix.ScaleToFit.CENTER);
 
-            Canvas canvas = new Canvas(mSignatureBitmap);
-            canvas.drawBitmap(signature, drawMatrix, null);
-            setIsEmpty(false);
-            invalidate();
-        }
-        // View not laid out yet e.g. called from onCreate(), onRestoreInstanceState()...
-        else {
-            getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    // Remove layout listener...
-                    ViewTreeObserverCompat.removeOnGlobalLayoutListener(getViewTreeObserver(), this);
-
-                    // Signature bitmap...
-                    setSignatureBitmap(signature);
-                }
-            });
-        }
+        Canvas canvas = new Canvas(mSignatureBitmap);
+        canvas.drawBitmap(signature, drawMatrix, null);
+        invalidate();
     }
 
     public Bitmap getTransparentSignatureBitmap() {
@@ -572,12 +548,9 @@ public class SignaturePad extends View {
         mDirtyRect.bottom = Math.max(mLastTouchY, eventY);
     }
 
-    private void setIsEmpty(boolean newValue) {
-        mIsEmpty = newValue;
+    private void finishSign() {
         if (mOnSignedListener != null) {
-            if (mIsEmpty) {
-                mOnSignedListener.onClear();
-            } else {
+            if (mPoints.size() > 0) {
                 mOnSignedListener.onSigned();
             }
         }

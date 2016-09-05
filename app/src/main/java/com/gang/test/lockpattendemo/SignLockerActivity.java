@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.github.gcacace.signaturepad.views.SignaturePad;
+import com.googlecode.tesseract.android.TessBaseAPI;
 
 /**
  * Created by gang on 16-9-4.
@@ -15,13 +17,13 @@ public class SignLockerActivity extends Activity implements ILockerActivity, Han
 
     private SignaturePad mSignaturePad;
     private Handler mHandler;
+    private TessBaseAPI tessBaseAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.sign_lock_activity);
-
 
 
         mHandler = new Handler(this);
@@ -33,6 +35,8 @@ public class SignLockerActivity extends Activity implements ILockerActivity, Han
 
             @Override
             public void onSigned() {
+                tessBaseAPI.setImage(mSignaturePad.getSignatureBitmap());
+                Log.d("test.SignLockerActivity", "onSigned: " + tessBaseAPI.getUTF8Text());
             }
 
             @Override
@@ -40,6 +44,15 @@ public class SignLockerActivity extends Activity implements ILockerActivity, Han
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (tessBaseAPI == null) {
+            tessBaseAPI = new TessBaseAPI();
+            tessBaseAPI.init(android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/tesseract/", "eng");
+        }
     }
 
     @Override
