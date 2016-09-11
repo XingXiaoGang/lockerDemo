@@ -1,4 +1,4 @@
-package com.gang.test.lockpattendemo;
+package com.gang.test.lockpattendemo.view;
 
 import android.content.Context;
 import android.graphics.Canvas;

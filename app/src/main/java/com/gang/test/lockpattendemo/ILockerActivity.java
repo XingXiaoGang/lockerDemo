@@ -5,6 +5,14 @@ package com.gang.test.lockpattendemo;
  */
 public interface ILockerActivity {
 
+    final int STATE_NORMAL = 0;
+    final int STATE_SETING = 1 << 1;
+    final int STATE_UNLOCKING = 1 << 2;
+    final int STATE_CONFORM_SETTING = 1 << 3;
+
+    int state = 0;
+
+
     enum LockEvent {
 
         SUCCESS("SUCCESS"), FAILED("FAILED"), ERRO("ERRO");
@@ -34,5 +42,10 @@ public interface ILockerActivity {
      * 觖锁失败
      **/
     void onUnLockFial(LockEvent lockEvent);
+
+    /**
+     * 解锁成功
+     **/
+    void onUnlock();
 
 }

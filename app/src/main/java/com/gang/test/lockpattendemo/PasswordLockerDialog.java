@@ -1,29 +1,34 @@
 package com.gang.test.lockpattendemo;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.os.Bundle;
 
 import com.gang.test.lockpattendemo.config.IPasswordConfig;
-import com.gang.test.lockpattendemo.config.PatternPwdConfig;
+import com.gang.test.lockpattendemo.config.NumPwdConfig;
 
 /**
- * Created by gang on 16-8-14.
+ * Created by gang on 16-9-11.
  */
-public class PatternLockerActivity extends Activity implements ILockerActivity {
+public class PasswordLockerDialog extends Dialog implements ILockerActivity {
 
-    private int[] mPassword;
-    private IPasswordConfig mConfig;
+    private Activity mLockeActivity;
+    private IPasswordConfig mPasswordConfig;
+
+    public PasswordLockerDialog(Activity context) {
+        super(context);
+        this.mLockeActivity = context;
+        this.mPasswordConfig = new NumPwdConfig(context);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pattern_lock_activity);
-        mConfig = new PatternPwdConfig(PatternLockerActivity.this);
     }
 
     @Override
     public Object generatePassword() {
-        return mConfig.getPwd(IPasswordConfig.KEY_PATTERN);
+        return mPasswordConfig.getPwd(IPasswordConfig.KEY_NUM);
     }
 
     @Override

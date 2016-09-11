@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.gang.test.lockpattendemo.config.IPasswordConfig;
 import com.github.gcacace.signaturepad.views.SignaturePad;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -18,6 +19,7 @@ public class SignLockerActivity extends Activity implements ILockerActivity, Han
     private SignaturePad mSignaturePad;
     private Handler mHandler;
     private TessBaseAPI tessBaseAPI;
+    private IPasswordConfig mConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +59,7 @@ public class SignLockerActivity extends Activity implements ILockerActivity, Han
 
     @Override
     public Object generatePassword() {
-        return null;
+        return mConfig.getPwd(IPasswordConfig.KEY_TEXT);
     }
 
     @Override
@@ -67,6 +69,11 @@ public class SignLockerActivity extends Activity implements ILockerActivity, Han
 
     @Override
     public void onUnLockFial(LockEvent lockEvent) {
+
+    }
+
+    @Override
+    public void onUnlock() {
 
     }
 
